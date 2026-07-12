@@ -1,0 +1,398 @@
+/* ==========================================================================
+   AssetFlow ERP - Dashboard SCSS Layout
+   ========================================================================== */
+
+.o_assetflow_dashboard_wrapper {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+    background-color: #f8fafc;
+    color: #1e293b;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* --- Sidebar Styling --- */
+.o_assetflow_sidebar {
+    width: 240px;
+    background-color: #ffffff;
+    border-right: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    padding: 20px 14px;
+}
+
+.o_sidebar_brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding-left: 6px;
+}
+
+.o_brand_logo {
+    width: 32px;
+    height: 32px;
+    background-color: #714b67; /* Standard Odoo purple theme accent */
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 1.05rem;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.o_brand_name {
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: #0f172a;
+}
+
+.o_sidebar_nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.o_nav_item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    color: #475569;
+    font-weight: 500;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.15s ease;
+}
+
+.o_nav_item:hover {
+    background-color: #f1f5f9;
+    color: #0f172a;
+}
+
+.o_nav_item.active {
+    background-color: #f3eef4; /* Odoo styled active selection */
+    color: #714b67;
+    font-weight: 600;
+}
+
+.o_nav_icon {
+    font-size: 1rem;
+    width: 16px;
+    text-align: center;
+}
+
+.o_sidebar_footer {
+    padding-top: 14px;
+    border-top: 1px solid #f1f5f9;
+}
+
+.o_user_profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.o_avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #e2e8f0;
+    color: #475569;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.o_user_details {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+.o_user_name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.o_user_role {
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+/* --- Main Dashboard Container --- */
+.o_assetflow_main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.o_dashboard_header {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 16px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.o_dashboard_title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin: 0;
+    color: #0f172a;
+}
+
+.o_dashboard_subtitle {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin: 4px 0 0 0;
+}
+
+.o_dashboard_content {
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* --- Overdue Alert Banner --- */
+.o_alert_banner {
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    border-left: 4px solid #ef4444;
+    border-radius: 6px;
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.o_alert_content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.o_alert_icon {
+    font-size: 1.1rem;
+}
+
+.o_alert_text {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #991b1b;
+}
+
+.o_alert_badge {
+    background-color: #fee2e2;
+    color: #ef4444;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+/* --- Section Layouts --- */
+.o_section_title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: #0f172a;
+}
+
+/* --- KPI Cards Grid --- */
+.o_kpi_grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.o_kpi_card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.o_kpi_icon_wrapper {
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+}
+
+/* Tailored HSL Colors aligned with mockup classes */
+.o_kpi_icon_wrapper.blue { background-color: #e0f2fe; color: #0284c7; }
+.o_kpi_icon_wrapper.green { background-color: #dcfce7; color: #16a34a; }
+.o_kpi_icon_wrapper.yellow { background-color: #fef3c7; color: #d97706; }
+.o_kpi_icon_wrapper.cyan { background-color: #ecfeff; color: #0891b2; }
+.o_kpi_icon_wrapper.red { background-color: #fee2e2; color: #dc2626; }
+.o_kpi_icon_wrapper.orange { background-color: #ffedd5; color: #ea580c; }
+
+.o_kpi_details {
+    display: flex;
+    flex-direction: column;
+}
+
+.o_kpi_value {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.1;
+}
+
+.o_kpi_label {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-top: 2px;
+    font-weight: 500;
+}
+
+/* --- Quick Actions Grid --- */
+.o_actions_grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
+}
+
+.o_action_btn {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-align: left;
+    transition: all 0.15s ease;
+}
+
+.o_action_btn:hover {
+    border-color: #714b67;
+    background-color: #faf5fa;
+}
+
+.o_action_icon {
+    font-size: 1.25rem;
+    color: #714b67;
+}
+
+.o_action_text {
+    display: flex;
+    flex-direction: column;
+}
+
+.o_action_title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.o_action_desc {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-top: 2px;
+}
+
+/* --- Recent Activity Feed --- */
+.o_activity_list {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.o_activity_item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.o_activity_item:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.o_activity_marker {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #714b67;
+    flex-shrink: 0;
+}
+
+.o_activity_details {
+    display: flex;
+    flex-direction: column;
+}
+
+.o_activity_desc {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #1e293b;
+    margin: 0;
+}
+
+.o_activity_time {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    margin-top: 2px;
+}
+
+/* --- Responsive Layout Configurations --- */
+@media (max-width: 768px) {
+    .o_assetflow_dashboard_wrapper {
+        flex-direction: column;
+    }
+    
+    .o_assetflow_sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #e2e8f0;
+        height: auto;
+    }
+    
+    .o_sidebar_nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+    
+    .o_nav_item {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+    }
+    
+    .o_sidebar_footer {
+        display: none;
+    }
+    
+    .o_dashboard_header {
+        padding: 12px 18px;
+    }
+    
+    .o_dashboard_content {
+        padding: 16px 18px;
+    }
+}

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Inherit Users List View to display Employee Directory details -->
+    <record id="view_users_tree_inherit_assetflow" model="ir.ui.view">
+        <field name="name">res.users.tree.inherit.assetflow</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='login']" position="after">
+                <field name="department_id"/>
+                <field name="role"/>
+                <field name="status" widget="badge" decoration-success="status == 'active'" decoration-danger="status == 'inactive'"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Inherit Users Form View to configure employee profiles -->
+    <record id="view_users_form_inherit_assetflow" model="ir.ui.view">
+        <field name="name">res.users.form.inherit.assetflow</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <notebook>
+                    <page string="AssetFlow Directory Profile" name="assetflow_profile">
+                        <group>
+                            <group string="Organization Specs">
+                                <field name="department_id" placeholder="Select Department..."/>
+                                <field name="role"/>
+                            </group>
+                            <group string="Account Status">
+                                <field name="status" widget="radio" options="{'horizontal': true}"/>
+                            </group>
+                        </group>
+                    </page>
+                </notebook>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Inherit Users Search Filter -->
+    <record id="view_users_search_inherit_assetflow" model="ir.ui.view">
+        <field name="name">res.users.search.inherit.assetflow</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="department_id"/>
+                <field name="role"/>
+                <filter string="Active Employees" name="active_employee" domain="[('status', '=', 'active')]"/>
+                <filter string="Inactive Employees" name="inactive_employee" domain="[('status', '=', 'inactive')]"/>
+            </xpath>
+            <xpath expr="//group" position="inside">
+                <filter string="Department" name="group_by_department" context="{'group_by': 'department_id'}"/>
+                <filter string="Role" name="group_by_role" context="{'group_by': 'role'}"/>
+                <filter string="Status" name="group_by_status" context="{'group_by': 'status'}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+    <!-- Main Dashboard Template -->
+    <t t-name="assetflow.DashboardTemplate">
+        <div class="o_assetflow_dashboard_wrapper">
+            <!-- Sidebar UI Component -->
+            <aside class="o_assetflow_sidebar">
+                <div class="o_sidebar_brand">
+                    <div class="o_brand_logo">AF</div>
+                    <span class="o_brand_name">AssetFlow</span>
+                </div>
+                
+                <nav class="o_sidebar_nav">
+                    <t t-foreach="props.menuItems" t-as="item" t-key="item.id">
+                        <a href="#" 
+                           t-attf-class="o_nav_item #{item.isActive ? 'active' : ''}" 
+                           t-on-click.prevent="() => this.onNavItemClick(item.id)">
+                            <i t-attf-class="oi #{item.icon} o_nav_icon"></i>
+                            <span class="o_nav_label"><t t-esc="item.name"/></span>
+                        </a>
+                    </t>
+                </nav>
+
+                <div class="o_sidebar_footer">
+                    <div class="o_user_profile">
+                        <div class="o_avatar">K</div>
+                        <div class="o_user_details">
+                            <span class="o_user_name">Kaizan</span>
+                            <span class="o_user_role">UI/UX Developer</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Panel UI Component -->
+            <main class="o_assetflow_main">
+                <!-- Dashboard Header -->
+                <header class="o_dashboard_header">
+                    <div class="o_header_titles">
+                        <h1 class="o_dashboard_title">Dashboard</h1>
+                        <p class="o_dashboard_subtitle">Today's Operational Overview</p>
+                    </div>
+                </header>
+
+                <div class="o_dashboard_content">
+                    <!-- Overdue Alert Section -->
+                    <div t-if="props.overdueAlert" class="o_alert_banner">
+                        <div class="o_alert_content">
+                            <span class="o_alert_icon">⚠️</span>
+                            <span class="o_alert_text"><t t-esc="props.overdueAlert.message"/></span>
+                        </div>
+                        <span class="o_alert_badge">Urgent</span>
+                    </div>
+
+                    <!-- KPI Cards Section -->
+                    <section class="o_kpi_section">
+                        <h2 class="o_section_title">Today's Overview</h2>
+                        <div class="o_kpi_grid">
+                            <t t-foreach="props.kpiCards" t-as="card" t-key="card.id">
+                                <div class="o_kpi_card">
+                                    <div t-attf-class="o_kpi_icon_wrapper #{card.colorClass}">
+                                        <i t-attf-class="oi #{card.icon}"></i>
+                                    </div>
+                                    <div class="o_kpi_details">
+                                        <span class="o_kpi_value"><t t-esc="card.value"/></span>
+                                        <span class="o_kpi_label"><t t-esc="card.label"/></span>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </section>
+
+                    <!-- Quick Actions Section -->
+                    <section class="o_actions_section">
+                        <h2 class="o_section_title">Quick Actions</h2>
+                        <div class="o_actions_grid">
+                            <button class="o_action_btn" t-on-click="() => this.onQuickAction('register')">
+                                <i class="oi oi-plus o_action_icon"></i>
+                                <div class="o_action_text">
+                                    <span class="o_action_title">Register Asset</span>
+                                    <span class="o_action_desc">Add new inventory item</span>
+                                </div>
+                            </button>
+                            <button class="o_action_btn" t-on-click="() => this.onQuickAction('book')">
+                                <i class="oi oi-calendar o_action_icon"></i>
+                                <div class="o_action_text">
+                                    <span class="o_action_title">Book Resource</span>
+                                    <span class="o_action_desc">Schedule shared resource</span>
+                                </div>
+                            </button>
+                            <button class="o_action_btn" t-on-click="() => this.onQuickAction('maintenance')">
+                                <i class="oi oi-settings o_action_icon"></i>
+                                <div class="o_action_text">
+                                    <span class="o_action_title">Raise Maintenance Request</span>
+                                    <span class="o_action_desc">Report physical damages</span>
+                                </div>
+                            </button>
+                        </div>
+                    </section>
+
+                    <!-- Recent Activity Section -->
+                    <section class="o_activity_section">
+                        <h2 class="o_section_title">Recent Activity</h2>
+                        <div class="o_activity_list">
+                            <t t-foreach="props.activities" t-as="act" t-key="act.id">
+                                <div class="o_activity_item">
+                                    <div class="o_activity_marker"></div>
+                                    <div class="o_activity_details">
+                                        <p class="o_activity_desc"><t t-esc="act.desc"/></p>
+                                        <span class="o_activity_time"><t t-esc="act.time"/></span>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </section>
+                </div>
+            </main>
+        </div>
+    </t>
+</templates>

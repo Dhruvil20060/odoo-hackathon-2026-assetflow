@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="seq_assetflow_department" model="ir.sequence">
+            <field name="name">AssetFlow Department Code</field>
+            <field name="code">assetflow.department</field>
+            <field name="prefix">DEP-</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
+</odoo>
