@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Asset List View (Directory) -->
+    <record id="view_assetflow_asset_tree" model="ir.ui.view">
+        <field name="name">assetflow.asset.tree</field>
+        <field name="model">assetflow.asset</field>
+        <field name="arch" type="xml">
+            <tree string="Assets Directory">
+                <field name="asset_tag"/>
+                <field name="name"/>
+                <field name="category_id"/>
+                <field name="location"/>
+                <field name="is_bookable" widget="boolean_toggle"/>
+                <field name="status" widget="badge" decoration-success="status == 'available'" decoration-warning="status in ('reserved', 'maintenance')" decoration-info="status == 'allocated'" decoration-danger="status == 'lost'"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Asset Form View (Registration Form) -->
+    <record id="view_assetflow_asset_form" model="ir.ui.view">
+        <field name="name">assetflow.asset.form</field>
+        <field name="model">assetflow.asset</field>
+        <field name="arch" type="xml">
+            <form string="Asset Registration">
+                <header>
+                    <field name="status" widget="statusbar" options="{'clickable': '1'}"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. MacBook Pro M3"/>
+                        </h1>
+                        <label for="asset_tag" class="oe_edit_only"/>
+                        <h2>
+                            <field name="asset_tag" readonly="1"/>
+                        </h2>
+                    </div>
+                    <group>
+                        <group string="General Information">
+                            <field name="category_id" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="serial_number" placeholder="S/N or Service Tag"/>
+                            <field name="is_bookable"/>
+                            <field name="employee_id" readonly="1" placeholder="Unassigned"/>
+                        </group>
+                        <group string="Acquisition &amp; Location">
+                            <field name="acquisition_date"/>
+                            <field name="acquisition_cost" widget="monetary" options="{'currency_field': 'company_currency_id'}"/>
+                            <field name="condition"/>
+                            <field name="location" placeholder="e.g. HQ Floor 3"/>
+                            <field name="department_id" options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Description" name="desc_page">
+                            <field name="description" placeholder="Technical specs or general descriptions..."/>
+                        </page>
+                        <page string="Media &amp; Attachments" name="media_page">
+                            <group>
+                                <group string="Photo">
+                                    <field name="photo" widget="image" class="oe_avatar" options="{'size': [150, 150]}"/>
+                                </group>
+                                <group string="Files">
+                                    <field name="document_ids" widget="many2many_binary" string="Attach files"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Notes" name="notes_page">
+                            <field name="notes" placeholder="Additional audit notes or lifecycle remarks..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Asset Search View -->
+    <record id="view_assetflow_asset_filter" model="ir.ui.view">
+        <field name="name">assetflow.asset.select</field>
+        <field name="model">assetflow.asset</field>
+        <field name="arch" type="xml">
+            <search string="Search Assets">
+                <field name="name" string="Asset" filter_domain="['|', '|', ('name', 'ilike', self), ('asset_tag', 'ilike', self), ('serial_number', 'ilike', self)]"/>
+                <field name="asset_tag"/>
+                <field name="serial_number"/>
+                <field name="category_id"/>
+                <field name="department_id"/>
+                <field name="location"/>
+                <separator/>
+                <filter string="Available" name="status_avail" domain="[('status', '=', 'available')]"/>
+                <filter string="Allocated" name="status_alloc" domain="[('status', '=', 'allocated')]"/>
+                <filter string="Under Maintenance" name="status_maint" domain="[('status', '=', 'maintenance')]"/>
+                <filter string="Shared / Bookable" name="shared_bookable" domain="[('is_bookable', '=', True)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Category" name="group_category" context="{'group_by': 'category_id'}"/>
+                    <filter string="Department" name="group_dept" context="{'group_by': 'department_id'}"/>
+                    <filter string="Status" name="group_status" context="{'group_by': 'status'}"/>
+                    <filter string="Condition" name="group_condition" context="{'group_by': 'condition'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Overriding placeholder action to point to the real Asset model -->
+    <record id="action_assetflow_assets" model="ir.actions.act_window">
+        <field name="name">Assets Directory</field>
+        <field name="res_model">assetflow.asset</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_assetflow_asset_filter"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Register a new asset
+            </p>
+            <p>
+                Track name, serials, purchase values, locations, conditions, and attach dynamic documents.
+            </p>
+        </field>
+    </record>
+</odoo>
