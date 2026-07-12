@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Access Rights via XML for Auditing -->
+    <record id="access_audit_cycle_employee" model="ir.model.access">
+        <field name="name">access.audit.cycle.employee</field>
+        <field name="model_id" ref="model_assetflow_audit_cycle"/>
+        <field name="group_id" ref="assetflow.group_employee"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="access_audit_cycle_manager" model="ir.model.access">
+        <field name="name">access.audit.cycle.manager</field>
+        <field name="model_id" ref="model_assetflow_audit_cycle"/>
+        <field name="group_id" ref="assetflow.group_asset_manager"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="access_audit_record_employee" model="ir.model.access">
+        <field name="name">access.audit.record.employee</field>
+        <field name="model_id" ref="model_assetflow_audit_record"/>
+        <field name="group_id" ref="assetflow.group_employee"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="access_audit_discrepancy_employee" model="ir.model.access">
+        <field name="name">access.audit.discrepancy.employee</field>
+        <field name="model_id" ref="model_assetflow_audit_discrepancy"/>
+        <field name="group_id" ref="assetflow.group_employee"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- Audit Cycle Tree View -->
+    <record id="view_assetflow_audit_cycle_tree" model="ir.ui.view">
+        <field name="name">assetflow.audit.cycle.tree</field>
+        <field name="model">assetflow.audit.cycle</field>
+        <field name="arch" type="xml">
+            <tree string="Audit Cycles" decoration-muted="status == 'closed'" decoration-warning="status == 'draft'" decoration-info="status == 'in_progress'" decoration-success="status == 'completed'">
+                <field name="name"/>
+                <field name="audit_name"/>
+                <field name="scope"/>
+                <field name="department_id" string="Department"/>
+                <field name="location" string="Location"/>
+                <field name="date_start"/>
+                <field name="date_end"/>
+                <field name="status" widget="badge" decoration-warning="status == 'draft'" decoration-info="status == 'in_progress'" decoration-success="status == 'completed'" decoration-muted="status == 'closed'"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Audit Cycle Form View -->
+    <record id="view_assetflow_audit_cycle_form" model="ir.ui.view">
+        <field name="name">assetflow.audit.cycle.form</field>
+        <field name="model">assetflow.audit.cycle</field>
+        <field name="arch" type="xml">
+            <form string="Audit Cycle">
+                <header>
+                    <button name="action_start" string="Start Audit" type="object" class="btn-primary" invisible="status != 'draft'"/>
+                    <button name="action_complete" string="Complete Audit" type="object" class="btn-primary" invisible="status != 'in_progress'"/>
+                    <button name="action_close" string="Close Audit Cycle" type="object" class="btn-primary" invisible="status != 'completed'"/>
+                    <field name="status" widget="statusbar" statusbar_visible="draft,in_progress,completed,closed"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="audit_name" class="oe_edit_only"/>
+                        <h1>
+                            <field name="audit_name" placeholder="e.g. Q3 Electronics Inventory Audit" readonly="status != 'draft'"/>
+                        </h1>
+                        <label for="name" class="oe_edit_only"/>
+                        <h2>
+                            <field name="name" readonly="1"/>
+                        </h2>
+                    </div>
+                    <group>
+                        <group string="Scope Details">
+                            <field name="scope" widget="radio" options="{'horizontal': true}" readonly="status != 'draft'"/>
+                            <field name="department_id" invisible="scope != 'department'" required="scope == 'department'" readonly="status != 'draft'"/>
+                            <field name="location" invisible="scope != 'location'" required="scope == 'location'" placeholder="e.g. Headquarters Floor 3" readonly="status != 'draft'"/>
+                        </group>
+                        <group string="Timeline &amp; Auditors">
+                            <field name="date_start" readonly="status != 'draft'"/>
+                            <field name="date_end" readonly="status != 'draft'"/>
+                            <field name="auditor_ids" widget="many2many_tags" placeholder="Select auditors..." readonly="status != 'draft'"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <!-- Tab 1: Asset Verification -->
+                        <page string="Asset Verification" name="verification_page" invisible="status == 'draft'">
+                            <field name="record_ids" readonly="status != 'in_progress'">
+                                <tree editable="bottom" create="false" delete="false">
+                                    <field name="asset_id" string="Asset" readonly="1"/>
+                                    <field name="auditor_id" widget="many2one_avatar_user"/>
+                                    <field name="verification_status" widget="selection"/>
+                                    <field name="notes" placeholder="Condition comments or remarks..."/>
+                                    <field name="audit_date" readonly="1"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <!-- Tab 2: Discrepancy Log -->
+                        <page string="Discrepancy Log" name="discrepancy_page" invisible="status in ('draft', 'in_progress')">
+                            <field name="discrepancy_ids" readonly="1">
+                                <tree create="false" edit="false" delete="false">
+                                    <field name="asset_id" string="Asset"/>
+                                    <field name="discrepancy_type" widget="badge" decoration-danger="discrepancy_type == 'missing'" decoration-warning="discrepancy_type == 'damaged'"/>
+                                    <field name="status" widget="badge" decoration-warning="status == 'pending'" decoration-success="status == 'resolved'"/>
+                                    <field name="notes"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <!-- Tab 3: Audit History (Read-only view) -->
+                        <page string="Audit History" name="history_page" invisible="status == 'draft'">
+                            <field name="record_ids" readonly="1">
+                                <tree create="false" edit="false" delete="false">
+                                    <field name="audit_date" string="Audit Date"/>
+                                    <field name="auditor_id" widget="many2one_avatar_user"/>
+                                    <field name="asset_id" string="Asset Name"/>
+                                    <field name="verification_status" string="Result" widget="badge" decoration-success="verification_status == 'verified'" decoration-danger="verification_status == 'missing'" decoration-warning="verification_status == 'damaged'"/>
+                                    <field name="notes" string="Notes"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_assetflow_audit_cycle_filter" model="ir.ui.view">
+        <field name="name">assetflow.audit.cycle.select</field>
+        <field name="model">assetflow.audit.cycle</field>
+        <field name="arch" type="xml">
+            <search string="Search Audit Cycles">
+                <field name="name" string="Cycle Number or Name" filter_domain="['|', ('name', 'ilike', self), ('audit_name', 'ilike', self)]"/>
+                <field name="department_id"/>
+                <field name="auditor_ids"/>
+                <field name="location"/>
+                <separator/>
+                <filter string="Draft" name="status_draft" domain="[('status', '=', 'draft')]"/>
+                <filter string="In Progress" name="status_in_progress" domain="[('status', '=', 'in_progress')]"/>
+                <filter string="Completed" name="status_completed" domain="[('status', '=', 'completed')]"/>
+                <filter string="Closed" name="status_closed" domain="[('status', '=', 'closed')]"/>
+                <separator/>
+                <filter string="Scope Department" name="scope_dept" domain="[('scope', '=', 'department')]"/>
+                <filter string="Scope Location" name="scope_loc" domain="[('scope', '=', 'location')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Scope" name="group_scope" context="{'group_by': 'scope'}"/>
+                    <filter string="Department" name="group_dept" context="{'group_by': 'department_id'}"/>
+                    <filter string="Status" name="group_status" context="{'group_by': 'status'}"/>
+                    <filter string="Start Date" name="group_start" context="{'group_by': 'date_start'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Overriding placeholder action in actions.xml to load the correct Audit Cycle model -->
+    <record id="action_assetflow_audits" model="ir.actions.act_window">
+        <field name="name">Audit Cycles</field>
+        <field name="res_model">assetflow.audit.cycle</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_assetflow_audit_cycle_filter"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Register a new audit cycle
+            </p>
+            <p>
+                Track inventory verification scopes, record verified/missing/damaged reports, and log history results.
+            </p>
+        </field>
+    </record>
+</odoo>

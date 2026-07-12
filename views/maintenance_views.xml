@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Access Rights via XML for Maintenance -->
+    <record id="access_maintenance_employee" model="ir.model.access">
+        <field name="name">access.maintenance.employee</field>
+        <field name="model_id" ref="model_assetflow_maintenance"/>
+        <field name="group_id" ref="assetflow.group_employee"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="access_maintenance_manager" model="ir.model.access">
+        <field name="name">access.maintenance.manager</field>
+        <field name="model_id" ref="model_assetflow_maintenance"/>
+        <field name="group_id" ref="assetflow.group_asset_manager"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <!-- Maintenance Tree List View -->
+    <record id="view_assetflow_maintenance_tree" model="ir.ui.view">
+        <field name="name">assetflow.maintenance.tree</field>
+        <field name="model">assetflow.maintenance</field>
+        <field name="arch" type="xml">
+            <tree string="Maintenance Requests" decoration-muted="status in ('resolved', 'rejected')" decoration-warning="status == 'pending'" decoration-info="status == 'approved'" decoration-danger="status == 'in_progress'">
+                <field name="name"/>
+                <field name="asset_id"/>
+                <field name="raised_by_id" widget="many2one_avatar_user"/>
+                <field name="priority" widget="badge" decoration-danger="priority == 'critical'" decoration-warning="priority == 'high'" decoration-info="priority == 'medium'" decoration-muted="priority == 'low'"/>
+                <field name="status" widget="badge" decoration-warning="status == 'pending'" decoration-info="status in ('approved', 'assigned')" decoration-danger="status == 'in_progress'" decoration-success="status == 'resolved'" decoration-muted="status == 'rejected'"/>
+                <field name="request_date"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Maintenance Form View -->
+    <record id="view_assetflow_maintenance_form" model="ir.ui.view">
+        <field name="name">assetflow.maintenance.form</field>
+        <field name="model">assetflow.maintenance</field>
+        <field name="arch" type="xml">
+            <form string="Maintenance Request">
+                <header>
+                    <button name="action_approve" string="Approve Request" type="object" class="btn-primary" invisible="status != 'pending'" groups="assetflow.group_asset_manager"/>
+                    <button name="action_reject" string="Reject Request" type="object" class="btn-secondary" invisible="status != 'pending'" groups="assetflow.group_asset_manager"/>
+                    <button name="action_assign_technician" string="Assign Technician" type="object" class="btn-primary" invisible="status != 'approved'"/>
+                    <button name="action_start_work" string="Start Work" type="object" class="btn-success" invisible="status != 'assigned'"/>
+                    <button name="action_resolve" string="Mark Resolved" type="object" class="btn-primary" invisible="status != 'in_progress'"/>
+                    <field name="status" widget="statusbar" statusbar_visible="pending,approved,assigned,in_progress,resolved"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                        <label for="asset_id" class="oe_edit_only"/>
+                        <h2>
+                            <field name="asset_id" options="{'no_create': True}" readonly="status != 'pending'"/>
+                        </h2>
+                    </div>
+                    <group>
+                        <group string="Request Details">
+                            <field name="raised_by_id" widget="many2one_avatar_user" readonly="1"/>
+                            <field name="priority" readonly="status != 'pending'"/>
+                            <field name="request_date" readonly="1"/>
+                        </group>
+                        <group string="Assignments &amp; Resolution">
+                            <field name="technician_id" widget="many2one_avatar_user" readonly="status not in ('approved', 'assigned')" placeholder="Assign a technician..."/>
+                            <field name="approval_date" readonly="1" invisible="not approval_date"/>
+                            <field name="resolution_date" readonly="1" invisible="status != 'resolved'"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <!-- Tab 1: Issue Details -->
+                        <page string="Issue Details" name="issue_details">
+                            <group>
+                                <group string="Issue Description">
+                                    <field name="description" placeholder="Describe the physical damage or issue..." readonly="status != 'pending'" nolabel="1"/>
+                                </group>
+                                <group string="Visual Attachment">
+                                    <field name="photo" widget="image" class="oe_avatar" options="{'size': [150, 150]}" readonly="status != 'pending'"/>
+                                </group>
+                            </group>
+                        </page>
+                        <!-- Tab 2: Maintenance History (Read-only logs) -->
+                        <page string="Timeline &amp; History" name="history_page">
+                            <group string="Workflow Timeline Logs">
+                                <group>
+                                    <field name="request_date" string="Raised Date" readonly="1"/>
+                                    <field name="approval_date" string="Approved Date" readonly="1"/>
+                                    <field name="resolution_date" string="Resolved Date" readonly="1"/>
+                                </group>
+                                <group>
+                                    <field name="technician_id" string="Technician Log" readonly="1"/>
+                                    <field name="status" string="Termination Status" readonly="1"/>
+                                </group>
+                            </group>
+                            <group string="Resolution Report / Notes" invisible="status != 'resolved'">
+                                <field name="resolution_notes" readonly="1" placeholder="Technical resolution notes..."/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_assetflow_maintenance_filter" model="ir.ui.view">
+        <field name="name">assetflow.maintenance.select</field>
+        <field name="model">assetflow.maintenance</field>
+        <field name="arch" type="xml">
+            <search string="Search Maintenance Requests">
+                <field name="name" string="Request Number or Asset" filter_domain="['|', ('name', 'ilike', self), ('asset_id', 'ilike', self)]"/>
+                <field name="raised_by_id"/>
+                <field name="technician_id"/>
+                <separator/>
+                <filter string="Pending" name="status_pending" domain="[('status', '=', 'pending')]"/>
+                <filter string="Approved" name="status_approved" domain="[('status', '=', 'approved')]"/>
+                <filter string="In Progress" name="status_in_progress" domain="[('status', '=', 'in_progress')]"/>
+                <filter string="Resolved" name="status_resolved" domain="[('status', '=', 'resolved')]"/>
+                <filter string="Rejected" name="status_rejected" domain="[('status', '=', 'rejected')]"/>
+                <separator/>
+                <filter string="High &amp; Critical Priority" name="high_priority" domain="[('priority', 'in', ('high', 'critical'))]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Asset" name="group_asset" context="{'group_by': 'asset_id'}"/>
+                    <filter string="Raised By" name="group_raised" context="{'group_by': 'raised_by_id'}"/>
+                    <filter string="Technician" name="group_tech" context="{'group_by': 'technician_id'}"/>
+                    <filter string="Status" name="group_status" context="{'group_by': 'status'}"/>
+                    <filter string="Priority" name="group_priority" context="{'group_by': 'priority'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Redefine actions.xml placeholder action to load correct maintenance model -->
+    <record id="action_assetflow_maintenance" model="ir.actions.act_window">
+        <field name="name">Maintenance Requests</field>
+        <field name="res_model">assetflow.maintenance</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_assetflow_maintenance_filter"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Raise a maintenance request
+            </p>
+            <p>
+                Report asset damage, manage approval processes, and assign technicians to resolve issues.
+            </p>
+        </field>
+    </record>
+</odoo>
