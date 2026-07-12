@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Access Rights via XML for Allocation -->
+    <record id="access_allocation_employee" model="ir.model.access">
+        <field name="name">access.allocation.employee</field>
+        <field name="model_id" ref="model_assetflow_allocation"/>
+        <field name="group_id" ref="assetflow.group_employee"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="access_allocation_manager" model="ir.model.access">
+        <field name="name">access.allocation.manager</field>
+        <field name="model_id" ref="model_assetflow_allocation"/>
+        <field name="group_id" ref="assetflow.group_asset_manager"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <!-- Allocation List View -->
+    <record id="view_assetflow_allocation_tree" model="ir.ui.view">
+        <field name="name">assetflow.allocation.tree</field>
+        <field name="model">assetflow.allocation</field>
+        <field name="arch" type="xml">
+            <tree string="Asset Allocations" decoration-muted="status in ('returned', 'transferred')">
+                <field name="asset_id" string="Asset"/>
+                <field name="assignee_type"/>
+                <field name="employee_id" widget="many2one_avatar_user" invisible="assignee_type != 'employee'"/>
+                <field name="department_id" invisible="assignee_type != 'department'"/>
+                <field name="allocation_date"/>
+                <field name="expected_return_date"/>
+                <field name="actual_return_date"/>
+                <field name="status" widget="badge" decoration-success="status == 'active'" decoration-info="status == 'returned'" decoration-warning="status == 'transferred'"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Allocation Form View -->
+    <record id="view_assetflow_allocation_form" model="ir.ui.view">
+        <field name="name">assetflow.allocation.form</field>
+        <field name="model">assetflow.allocation</field>
+        <field name="arch" type="xml">
+            <form string="Asset Allocation">
+                <header>
+                    <button name="action_return" string="Return Asset" type="object" class="btn-primary" invisible="status != 'active'"/>
+                    <field name="status" widget="statusbar" statusbar_visible="active,returned,transferred"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="asset_id" class="oe_edit_only"/>
+                        <h1>
+                            <field name="asset_id" options="{'no_create': True}" readonly="status != 'active'"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Allocation Details">
+                            <field name="assignee_type" widget="radio" options="{'horizontal': true}" readonly="status != 'active'"/>
+                            <field name="employee_id" widget="many2one_avatar_user" invisible="assignee_type != 'employee'" required="assignee_type == 'employee'" readonly="status != 'active'"/>
+                            <field name="department_id" invisible="assignee_type != 'department'" required="assignee_type == 'department'" readonly="status != 'active'"/>
+                        </group>
+                        <group string="Timing &amp; Return Details">
+                            <field name="allocation_date" readonly="status != 'active'"/>
+                            <field name="expected_return_date" readonly="status != 'active'"/>
+                            <field name="actual_return_date" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Condition &amp; Check-in Notes" name="check_in_notes_page" invisible="status == 'active'">
+                            <group>
+                                <field name="check_in_notes" readonly="1"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Allocation Search View -->
+    <record id="view_assetflow_allocation_filter" model="ir.ui.view">
+        <field name="name">assetflow.allocation.select</field>
+        <field name="model">assetflow.allocation</field>
+        <field name="arch" type="xml">
+            <search string="Search Allocations">
+                <field name="asset_id" string="Asset Tag or Name"/>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <separator/>
+                <filter string="Active Allocations" name="active_allocs" domain="[('status', '=', 'active')]"/>
+                <filter string="Returned Assets" name="returned_allocs" domain="[('status', '=', 'returned')]"/>
+                <filter string="Transferred Allocations" name="transferred_allocs" domain="[('status', '=', 'transferred')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Asset" name="group_asset" context="{'group_by': 'asset_id'}"/>
+                    <filter string="Assignee Type" name="group_type" context="{'group_by': 'assignee_type'}"/>
+                    <filter string="Employee" name="group_employee" context="{'group_by': 'employee_id'}"/>
+                    <filter string="Department" name="group_dept" context="{'group_by': 'department_id'}"/>
+                    <filter string="Status" name="group_status" context="{'group_by': 'status'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action definition mapping menus to allocations -->
+    <record id="action_assetflow_allocation" model="ir.actions.act_window">
+        <field name="name">Asset Allocations</field>
+        <field name="res_model">assetflow.allocation</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_assetflow_allocation_filter"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Allocate a new asset
+            </p>
+            <p>
+                Allocate assets to employees or departments with tracking return dates.
+            </p>
+        </field>
+    </record>
+</odoo>

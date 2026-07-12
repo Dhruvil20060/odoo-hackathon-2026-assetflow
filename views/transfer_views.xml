@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Access Rights via XML for Transfer -->
+    <record id="access_transfer_employee" model="ir.model.access">
+        <field name="name">access.transfer.employee</field>
+        <field name="model_id" ref="model_assetflow_transfer"/>
+        <field name="group_id" ref="assetflow.group_employee"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="access_transfer_manager" model="ir.model.access">
+        <field name="name">access.transfer.manager</field>
+        <field name="model_id" ref="model_assetflow_transfer"/>
+        <field name="group_id" ref="assetflow.group_asset_manager"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <!-- Transfer Request List View -->
+    <record id="view_assetflow_transfer_tree" model="ir.ui.view">
+        <field name="name">assetflow.transfer.tree</field>
+        <field name="model">assetflow.transfer</field>
+        <field name="arch" type="xml">
+            <tree string="Asset Transfers">
+                <field name="asset_id"/>
+                <field name="requestor_id" widget="many2one_avatar_user"/>
+                <field name="target_assignee_type"/>
+                <field name="target_employee_id" widget="many2one_avatar_user" invisible="target_assignee_type != 'employee'"/>
+                <field name="target_department_id" invisible="target_assignee_type != 'department'"/>
+                <field name="requested_date"/>
+                <field name="status" widget="badge" decoration-warning="status == 'requested'" decoration-info="status == 'approved'" decoration-success="status == 'reallocated'" decoration-danger="status == 'rejected'"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Transfer Request Form View -->
+    <record id="view_assetflow_transfer_form" model="ir.ui.view">
+        <field name="name">assetflow.transfer.form</field>
+        <field name="model">assetflow.transfer</field>
+        <field name="arch" type="xml">
+            <form string="Asset Transfer Request">
+                <header>
+                    <button name="action_approve" string="Approve" type="object" class="btn-primary" invisible="status != 'requested'"/>
+                    <button name="action_reject" string="Reject" type="object" class="btn-secondary" invisible="status != 'requested'"/>
+                    <button name="action_reallocate" string="Execute Reallocation" type="object" class="btn-success" invisible="status != 'approved'"/>
+                    <field name="status" widget="statusbar" statusbar_visible="requested,approved,reallocated,rejected"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group string="Asset &amp; Requestor Info">
+                            <field name="asset_id" options="{'no_create': True}" readonly="status != 'requested'"/>
+                            <field name="requestor_id" widget="many2one_avatar_user" readonly="1"/>
+                            <field name="requested_date" readonly="1"/>
+                        </group>
+                        <group string="Target Assignee Details">
+                            <field name="target_assignee_type" widget="radio" options="{'horizontal': true}" readonly="status != 'requested'"/>
+                            <field name="target_employee_id" widget="many2one_avatar_user" invisible="target_assignee_type != 'employee'" required="target_assignee_type == 'employee'" readonly="status != 'requested'"/>
+                            <field name="target_department_id" invisible="target_assignee_type != 'department'" required="target_assignee_type == 'department'" readonly="status != 'requested'"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Reason &amp; Description" name="reason_page">
+                            <field name="reason" placeholder="Explain why this transfer is required..." readonly="status != 'requested'"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Transfer Request Search View -->
+    <record id="view_assetflow_transfer_filter" model="ir.ui.view">
+        <field name="name">assetflow.transfer.select</field>
+        <field name="model">assetflow.transfer</field>
+        <field name="arch" type="xml">
+            <search string="Search Transfers">
+                <field name="asset_id" string="Asset Tag or Name"/>
+                <field name="requestor_id"/>
+                <field name="target_employee_id"/>
+                <field name="target_department_id"/>
+                <separator/>
+                <filter string="Requested" name="status_requested" domain="[('status', '=', 'requested')]"/>
+                <filter string="Approved" name="status_approved" domain="[('status', '=', 'approved')]"/>
+                <filter string="Reallocated" name="status_reallocated" domain="[('status', '=', 'reallocated')]"/>
+                <filter string="Rejected" name="status_rejected" domain="[('status', '=', 'rejected')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Asset" name="group_asset" context="{'group_by': 'asset_id'}"/>
+                    <filter string="Requestor" name="group_requestor" context="{'group_by': 'requestor_id'}"/>
+                    <filter string="Target Employee" name="group_target_emp" context="{'group_by': 'target_employee_id'}"/>
+                    <filter string="Status" name="group_status" context="{'group_by': 'status'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action definition mapping menus to transfers -->
+    <record id="action_assetflow_transfer" model="ir.actions.act_window">
+        <field name="name">Asset Transfers</field>
+        <field name="res_model">assetflow.transfer</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_assetflow_transfer_filter"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a transfer request
+            </p>
+            <p>
+                Manage reallocation process for already allocated assets.
+            </p>
+        </field>
+    </record>
+
+    <!-- Register Submenus under Allocation & Transfer Menu -->
+    <menuitem 
+        id="menu_sub_asset_allocations" 
+        name="Allocations" 
+        parent="menu_assetflow_allocation" 
+        action="action_assetflow_allocation" 
+        sequence="10"
+    />
+
+    <menuitem 
+        id="menu_sub_asset_transfers" 
+        name="Transfer Requests" 
+        parent="menu_assetflow_allocation" 
+        action="action_assetflow_transfer" 
+        sequence="20"
+    />
+</odoo>

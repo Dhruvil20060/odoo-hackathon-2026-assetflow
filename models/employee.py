@@ -5,14 +5,12 @@ class ResUsers(models.Model):
     _inherit = 'res.users'
 
     department_id = fields.Many2one('assetflow.department', string='Department')
-    
     role = fields.Selection([
         ('employee', 'Employee'),
         ('dept_head', 'Department Head'),
         ('asset_manager', 'Asset Manager'),
         ('admin', 'Admin')
     ], string='Role', default='employee', required=True)
-    
     status = fields.Selection([
         ('active', 'Active'),
         ('inactive', 'Inactive')
@@ -20,54 +18,50 @@ class ResUsers(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        # Default signup is strictly Employee role
+        for vals in vals_list:
+            vals['role'] = 'employee'
         users = super(ResUsers, self).create(vals_list)
         for user in users:
-            user._sync_security_groups()
+            user._sync_role_groups()
         return users
 
     def write(self, vals):
         res = super(ResUsers, self).write(vals)
         if 'role' in vals or 'status' in vals:
             for user in self:
-                user._sync_security_groups()
+                user._sync_role_groups()
         return res
 
-    def _sync_security_groups(self):
-        """Synchronizes Odoo XML groups based on the custom role field selection."""
+    def _sync_role_groups(self):
         self.ensure_one()
-        
-        # Load references to the XML groups
-        group_emp = self.env.ref('assetflow.group_employee', raise_if_not_found=False)
-        group_head = self.env.ref('assetflow.group_dept_head', raise_if_not_found=False)
-        group_mgr = self.env.ref('assetflow.group_asset_manager', raise_if_not_found=False)
-        group_adm = self.env.ref('assetflow.group_admin', raise_if_not_found=False)
+        g_emp = self.env.ref('assetflow.group_employee', raise_if_not_found=False)
+        g_head = self.env.ref('assetflow.group_dept_head', raise_if_not_found=False)
+        g_mgr = self.env.ref('assetflow.group_asset_manager', raise_if_not_found=False)
+        g_adm = self.env.ref('assetflow.group_admin', raise_if_not_found=False)
 
-        if not all([group_emp, group_head, group_mgr, group_adm]):
-            return # Skip if security groups are not loaded yet (e.g. during module install)
+        if not all([g_emp, g_head, g_mgr, g_adm]):
+            return
 
-        # Map role selections to target groups to add
-        groups_to_add = self.env['res.groups']
-        groups_to_remove = self.env['res.groups']
+        to_add = self.env['res.groups']
+        to_remove = self.env['res.groups']
 
-        # Determine alignment
         if self.status == 'inactive':
-            # Remove all custom security access on deactivation
-            groups_to_remove = group_emp + group_head + group_mgr + group_adm
+            to_remove = g_emp + g_head + g_mgr + g_adm
         else:
             if self.role == 'employee':
-                groups_to_add = group_emp
-                groups_to_remove = group_head + group_mgr + group_adm
+                to_add = g_emp
+                to_remove = g_head + g_mgr + g_adm
             elif self.role == 'dept_head':
-                groups_to_add = group_head
-                groups_to_remove = group_mgr + group_adm
+                to_add = g_head
+                to_remove = g_mgr + g_adm
             elif self.role == 'asset_manager':
-                groups_to_add = group_mgr
-                groups_to_remove = group_adm
+                to_add = g_mgr
+                to_remove = g_adm
             elif self.role == 'admin':
-                groups_to_add = group_adm
+                to_add = g_adm
 
-        # Execute assignment changes
-        if groups_to_add:
-            self.write({'groups_id': [(4, g.id) for g in groups_to_add]})
-        if groups_to_remove:
-            self.write({'groups_id': [(3, g.id) for g in groups_to_remove]})
+        if to_add:
+            self.write({'groups_id': [(4, g.id) for g in to_add]})
+        if to_remove:
+            self.write({'groups_id': [(3, g.id) for g in to_remove]})

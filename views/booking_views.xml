@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Access Rights via XML for Booking -->
+    <record id="access_booking_employee" model="ir.model.access">
+        <field name="name">access.booking.employee</field>
+        <field name="model_id" ref="model_assetflow_booking"/>
+        <field name="group_id" ref="assetflow.group_employee"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="access_booking_manager" model="ir.model.access">
+        <field name="name">access.booking.manager</field>
+        <field name="model_id" ref="model_assetflow_booking"/>
+        <field name="group_id" ref="assetflow.group_asset_manager"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <!-- Calendar View -->
+    <record id="view_assetflow_booking_calendar" model="ir.ui.view">
+        <field name="name">assetflow.booking.calendar</field>
+        <field name="model">assetflow.booking</field>
+        <field name="arch" type="xml">
+            <calendar string="Resource Bookings" date_start="date_start" date_stop="date_end" color="status" quick_create="0" mode="week">
+                <field name="resource_id" avatar_field="photo"/>
+                <field name="employee_id"/>
+                <field name="status"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- List View -->
+    <record id="view_assetflow_booking_tree" model="ir.ui.view">
+        <field name="name">assetflow.booking.tree</field>
+        <field name="model">assetflow.booking</field>
+        <field name="arch" type="xml">
+            <tree string="Bookings Directory" decoration-muted="status == 'cancelled'" decoration-success="status == 'completed'" decoration-info="status == 'ongoing'" decoration-warning="status == 'upcoming'">
+                <field name="resource_id"/>
+                <field name="employee_id" widget="many2one_avatar_user"/>
+                <field name="department_id"/>
+                <field name="date_start"/>
+                <field name="date_end"/>
+                <field name="status" widget="badge" decoration-warning="status == 'upcoming'" decoration-info="status == 'ongoing'" decoration-success="status == 'completed'" decoration-danger="status == 'cancelled'"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_assetflow_booking_form" model="ir.ui.view">
+        <field name="name">assetflow.booking.form</field>
+        <field name="model">assetflow.booking</field>
+        <field name="arch" type="xml">
+            <form string="Resource Booking">
+                <header>
+                    <field name="status" widget="statusbar" options="{'clickable': '1'}"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="resource_id" class="oe_edit_only"/>
+                        <h1>
+                            <field name="resource_id" placeholder="Select Resource to book..."/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Schedule Timeline">
+                            <field name="date_start" placeholder="Start Date &amp; Time"/>
+                            <field name="date_end" placeholder="End Date &amp; Time"/>
+                        </group>
+                        <group string="Assignee Details">
+                            <field name="employee_id" widget="many2one_avatar_user"/>
+                            <field name="department_id" options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Reservation Purpose" name="purpose_page">
+                            <field name="purpose" placeholder="Describe the purpose of this reservation..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_assetflow_booking_filter" model="ir.ui.view">
+        <field name="name">assetflow.booking.select</field>
+        <field name="model">assetflow.booking</field>
+        <field name="arch" type="xml">
+            <search string="Search Bookings">
+                <field name="resource_id"/>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <separator/>
+                <filter string="Upcoming" name="status_up" domain="[('status', '=', 'upcoming')]"/>
+                <filter string="Ongoing" name="status_ong" domain="[('status', '=', 'ongoing')]"/>
+                <filter string="Completed" name="status_comp" domain="[('status', '=', 'completed')]"/>
+                <filter string="Cancelled" name="status_canc" domain="[('status', '=', 'cancelled')]"/>
+                <separator/>
+                <filter string="Today's Bookings" name="today_bookings" domain="[('date_start', '&gt;=', datetime.datetime.now().strftime('%Y-%m-%d 00:00:00')), ('date_start', '&lt;=', datetime.datetime.now().strftime('%Y-%m-%d 23:59:59'))]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Resource" name="group_resource" context="{'group_by': 'resource_id'}"/>
+                    <filter string="Employee" name="group_employee" context="{'group_by': 'employee_id'}"/>
+                    <filter string="Department" name="group_dept" context="{'group_by': 'department_id'}"/>
+                    <filter string="Status" name="group_status" context="{'group_by': 'status'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Overriding placeholder action to point to the real Booking model -->
+    <record id="action_assetflow_booking" model="ir.actions.act_window">
+        <field name="name">Resource Bookings</field>
+        <field name="res_model">assetflow.booking</field>
+        <field name="view_mode">calendar,tree,form</field>
+        <field name="search_view_id" ref="view_assetflow_booking_filter"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Book a resource
+            </p>
+            <p>
+                Schedule shared resources like rooms, vehicles, or IT equipment.
+            </p>
+        </field>
+    </record>
+</odoo>
