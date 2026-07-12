@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+    <!-- Extension of the main Dashboard template to append booking widgets -->
+    <t t-inherit="assetflow.DashboardTemplate" t-inherit-mode="extension">
+        <!-- Part 1: Add Booking KPI Cards -->
+        <xpath expr="//div[hasclass('o_kpi_grid')]" position="inside">
+            <div class="o_kpi_card">
+                <div class="o_kpi_icon_wrapper cyan">
+                    <i class="oi oi-calendar"></i>
+                </div>
+                <div class="o_kpi_details">
+                    <span class="o_kpi_value">8</span>
+                    <span class="o_kpi_label">Active Bookings</span>
+                </div>
+            </div>
+            <div class="o_kpi_card">
+                <div class="o_kpi_icon_wrapper blue">
+                    <i class="oi oi-calendar"></i>
+                </div>
+                <div class="o_kpi_details">
+                    <span class="o_kpi_value">4</span>
+                    <span class="o_kpi_label">Upcoming Bookings</span>
+                </div>
+            </div>
+            <div class="o_kpi_card">
+                <div class="o_kpi_icon_wrapper green">
+                    <i class="oi oi-calendar"></i>
+                </div>
+                <div class="o_kpi_details">
+                    <span class="o_kpi_value">2</span>
+                    <span class="o_kpi_label">Ongoing Bookings</span>
+                </div>
+            </div>
+            <div class="o_kpi_card">
+                <div class="o_kpi_icon_wrapper muted">
+                    <i class="oi oi-check"></i>
+                </div>
+                <div class="o_kpi_details">
+                    <span class="o_kpi_value">18</span>
+                    <span class="o_kpi_label">Completed Bookings</span>
+                </div>
+            </div>
+        </xpath>
+
+        <!-- Part 2 & 3: Add Booking Summary Panel & Reminder Widget -->
+        <xpath expr="//section[hasclass('o_activity_section')]" position="after">
+            <div class="o_dashboard_booking_grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px;">
+                <!-- Booking Summary Panel -->
+                <section class="o_booking_summary_section" style="background: var(--o-view-background, #ffffff); padding: 20px; border-radius: 6px; border: 1px solid #dee2e6;">
+                    <h2 class="o_section_title" style="font-size: 1.1rem; font-weight: 600; margin-bottom: 15px; color: #495057;">Booking Summary</h2>
+                    
+                    <div class="o_summary_group" style="margin-bottom: 15px;">
+                        <h4 style="font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; color: #007bff;">Today's Bookings</h4>
+                        <ul style="list-style: none; padding-left: 0; margin-bottom: 0;">
+                            <li style="padding: 6px 0; border-bottom: 1px solid #f8f9fa; display: flex; justify-content: space-between;">
+                                <span>Meeting Room A (10:00 - 11:30 AM)</span>
+                                <span class="badge bg-success" style="padding: 3px 6px; font-size: 0.75rem; border-radius: 4px; color: white;">Completed</span>
+                            </li>
+                            <li style="padding: 6px 0; border-bottom: 1px solid #f8f9fa; display: flex; justify-content: space-between;">
+                                <span>Meeting Room B (1:00 - 2:00 PM)</span>
+                                <span class="badge bg-primary" style="padding: 3px 6px; font-size: 0.75rem; border-radius: 4px; color: white;">Confirmed</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="o_summary_group" style="margin-bottom: 15px;">
+                        <h4 style="font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; color: #28a745;">Upcoming Bookings</h4>
+                        <ul style="list-style: none; padding-left: 0; margin-bottom: 0;">
+                            <li style="padding: 6px 0; border-bottom: 1px solid #f8f9fa;">Projector AF-0056 (Tomorrow 9:00 AM)</li>
+                            <li style="padding: 6px 0; border-bottom: 1px solid #f8f9fa;">Company Car AF-0120 (Tuesday 10:00 AM)</li>
+                        </ul>
+                    </div>
+
+                    <div class="o_summary_group">
+                        <h4 style="font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; color: #6c757d;">Recently Completed</h4>
+                        <ul style="list-style: none; padding-left: 0; margin-bottom: 0;">
+                            <li style="padding: 6px 0; color: #6c757d;">Training Hall (Yesterday 3:00 PM)</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Booking Reminder Widget -->
+                <section class="o_booking_reminders_section" style="background: var(--o-view-background, #ffffff); padding: 20px; border-radius: 6px; border: 1px solid #dee2e6;">
+                    <h2 class="o_section_title" style="font-size: 1.1rem; font-weight: 600; margin-bottom: 15px; color: #495057;">Booking Reminders</h2>
+                    
+                    <div class="o_reminder_list" style="display: flex; flex-direction: column; gap: 10px;">
+                        <div class="o_reminder_item" style="padding: 10px; border-left: 4px solid #ffc107; background: #fffbeb; border-radius: 0 4px 4px 0;">
+                            <strong style="display: block; font-size: 0.9rem; color: #856404;">Room B starts in 30 mins</strong>
+                            <span style="font-size: 0.8rem; color: #856404;">Today at 1:00 PM</span>
+                        </div>
+                        <div class="o_reminder_item" style="padding: 10px; border-left: 4px solid #17a2b8; background: #eef9fc; border-radius: 0 4px 4px 0;">
+                            <strong style="display: block; font-size: 0.9rem; color: #0c5460;">Projector booking tomorrow</strong>
+                            <span style="font-size: 0.8rem; color: #0c5460;">Tomorrow at 9:00 AM</span>
+                        </div>
+                        <div class="o_reminder_item" style="padding: 10px; border-left: 4px solid #007bff; background: #ebf5ff; border-radius: 0 4px 4px 0;">
+                            <strong style="display: block; font-size: 0.9rem; color: #004085;">Vehicle booking at 3:00 PM today</strong>
+                            <span style="font-size: 0.8rem; color: #004085;">Today at 3:00 PM</span>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </xpath>
+    </t>
+</templates>

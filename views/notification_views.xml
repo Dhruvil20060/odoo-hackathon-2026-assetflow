@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Access Rights via XML for Notifications & Logs -->
+    <record id="access_notification_employee" model="ir.model.access">
+        <field name="name">access.notification.employee</field>
+        <field name="model_id" ref="model_assetflow_notification"/>
+        <field name="group_id" ref="assetflow.group_employee"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="access_activity_log_employee" model="ir.model.access">
+        <field name="name">access.activity.log.employee</field>
+        <field name="model_id" ref="model_assetflow_activity_log"/>
+        <field name="group_id" ref="assetflow.group_employee"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- Notification List View -->
+    <record id="view_notification_tree" model="ir.ui.view">
+        <field name="name">assetflow.notification.tree</field>
+        <field name="model">assetflow.notification</field>
+        <field name="arch" type="xml">
+            <tree string="Notifications" decoration-bf="is_read == False">
+                <field name="title"/>
+                <field name="notif_type"/>
+                <field name="module"/>
+                <field name="priority" widget="badge" decoration-danger="priority == 'critical'" decoration-warning="priority == 'high'" decoration-info="priority == 'medium'" decoration-muted="priority == 'low'"/>
+                <field name="status" widget="badge" decoration-success="status == 'sent'" decoration-warning="status == 'pending'" decoration-danger="status == 'failed'"/>
+                <field name="create_date" string="Received On"/>
+                <field name="is_read" string="Read" widget="boolean_toggle"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Notification Form View -->
+    <record id="view_notification_form" model="ir.ui.view">
+        <field name="name">assetflow.notification.form</field>
+        <field name="model">assetflow.notification</field>
+        <field name="arch" type="xml">
+            <form string="Notification Details">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="title" class="oe_edit_only"/>
+                        <h1>
+                            <field name="title" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Routing Specs">
+                            <field name="notif_type" readonly="1"/>
+                            <field name="module" readonly="1"/>
+                            <field name="user_id" readonly="1"/>
+                        </group>
+                        <group string="Status &amp; Priority">
+                            <field name="priority" readonly="1"/>
+                            <field name="status" readonly="1"/>
+                            <field name="is_read" string="Mark as Read"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Notification Content" name="content_page">
+                            <field name="message" readonly="1" placeholder="Notification message text..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Notification Search View with Custom Mockup Tabs -->
+    <record id="view_notification_filter" model="ir.ui.view">
+        <field name="name">assetflow.notification.select</field>
+        <field name="model">assetflow.notification</field>
+        <field name="arch" type="xml">
+            <search string="Search Notifications">
+                <field name="title" string="Notification" filter_domain="['|', ('title', 'ilike', self), ('message', 'ilike', self)]"/>
+                <field name="user_id"/>
+                <separator/>
+                
+                <!-- Mockup Tab selections as quick filters -->
+                <filter string="Unread Only" name="unread" domain="[('is_read', '=', False)]"/>
+                <separator/>
+                <filter string="Alerts" name="tab_alerts" domain="['|', ('priority', 'in', ('high', 'critical')), ('notif_type', 'in', ('overdue', 'audit_disc'))]"/>
+                <filter string="Approvals" name="tab_approvals" domain="[('notif_type', 'in', ('maint_appr', 'maint_rej', 'trf_appr'))]"/>
+                <filter string="Bookings" name="tab_bookings" domain="[('notif_type', 'in', ('book_conf', 'book_canc', 'book_rem'))]"/>
+                
+                <group expand="0" string="Group By">
+                    <filter string="Module" name="group_module" context="{'group_by': 'module'}"/>
+                    <filter string="Type" name="group_type" context="{'group_by': 'notif_type'}"/>
+                    <filter string="Priority" name="group_priority" context="{'group_by': 'priority'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Activity Log List View (Chronological Timeline) -->
+    <record id="view_activity_log_tree" model="ir.ui.view">
+        <field name="name">assetflow.activity.log.tree</field>
+        <field name="model">assetflow.activity.log</field>
+        <field name="arch" type="xml">
+            <tree string="Activity Timeline" create="false" edit="false" delete="false">
+                <field name="timestamp"/>
+                <field name="user_id" widget="many2one_avatar_user"/>
+                <field name="action"/>
+                <field name="module"/>
+                <field name="description"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Search View for Activity Timeline -->
+    <record id="view_activity_log_filter" model="ir.ui.view">
+        <field name="name">assetflow.activity.log.select</field>
+        <field name="model">assetflow.activity.log</field>
+        <field name="arch" type="xml">
+            <search string="Search Logs">
+                <field name="action"/>
+                <field name="user_id"/>
+                <group expand="0" string="Group By">
+                    <filter string="Actor" name="group_actor" context="{'group_by': 'user_id'}"/>
+                    <filter string="Module" name="group_module" context="{'group_by': 'module'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action definition mapping menus to notifications -->
+    <record id="action_assetflow_notification" model="ir.actions.act_window">
+        <field name="name">Notifications</field>
+        <field name="res_model">assetflow.notification</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_notification_filter"/>
+    </record>
+
+    <!-- Action definition mapping menus to activity logs -->
+    <record id="action_assetflow_activity_log" model="ir.actions.act_window">
+        <field name="name">Activity Logs</field>
+        <field name="res_model">assetflow.activity.log</field>
+        <field name="view_mode">tree</field>
+        <field name="search_view_id" ref="view_activity_log_filter"/>
+    </record>
+
+    <!-- Register Submenus under parent Notifications Option -->
+    <menuitem 
+        id="menu_sub_notifications" 
+        name="Notifications" 
+        parent="menu_assetflow_notifications" 
+        action="action_assetflow_notification" 
+        sequence="10"
+    />
+
+    <menuitem 
+        id="menu_sub_activity_logs" 
+        name="Activity Logs" 
+        parent="menu_assetflow_notifications" 
+        action="action_assetflow_activity_log" 
+        sequence="20"
+    />
+
+    <!-- Database Seeding of Sample Logs (Noupload noupdate="1") -->
+    <data noupdate="1">
+        <!-- Seed Activities -->
+        <record id="seed_activity_1" model="assetflow.activity.log">
+            <field name="user_id" ref="base.user_admin"/>
+            <field name="action">Login</field>
+            <field name="module">system</field>
+            <field name="description">User admin logged in from web client.</field>
+            <field name="timestamp" eval="(datetime.datetime.now() - datetime.timedelta(hours=5)).strftime('%Y-%m-%d %H:%M:%S')"/>
+        </record>
+        <record id="seed_activity_2" model="assetflow.activity.log">
+            <field name="user_id" ref="base.user_admin"/>
+            <field name="action">Asset Assigned</field>
+            <field name="module">allocation</field>
+            <field name="description">Laptop AF-0114 allocated to Priya Sharma from Engineering.</field>
+            <field name="timestamp" eval="(datetime.datetime.now() - datetime.timedelta(hours=4)).strftime('%Y-%m-%d %H:%M:%S')"/>
+        </record>
+        <record id="seed_activity_3" model="assetflow.activity.log">
+            <field name="user_id" ref="base.user_admin"/>
+            <field name="action">Booking Confirmed</field>
+            <field name="module">booking</field>
+            <field name="description">Room B2 booking confirmed for 2:00 to 3:00 PM.</field>
+            <field name="timestamp" eval="(datetime.datetime.now() - datetime.timedelta(hours=3)).strftime('%Y-%m-%d %H:%M:%S')"/>
+        </record>
+        <record id="seed_activity_4" model="assetflow.activity.log">
+            <field name="user_id" ref="base.user_admin"/>
+            <field name="action">Maintenance Approved</field>
+            <field name="module">maintenance</field>
+            <field name="description">Maintenance request for Projector AF-0056 approved.</field>
+            <field name="timestamp" eval="(datetime.datetime.now() - datetime.timedelta(hours=2)).strftime('%Y-%m-%d %H:%M:%S')"/>
+        </record>
+        <record id="seed_activity_5" model="assetflow.activity.log">
+            <field name="user_id" ref="base.user_admin"/>
+            <field name="action">Audit Completed</field>
+            <field name="module">audit</field>
+            <field name="description">Audit cycle Q3 Electronics completed and locked.</field>
+            <field name="timestamp" eval="(datetime.datetime.now() - datetime.timedelta(hours=1)).strftime('%Y-%m-%d %H:%M:%S')"/>
+        </record>
+
+        <!-- Seed Notifications -->
+        <record id="seed_notif_1" model="assetflow.notification">
+            <field name="title">Asset Assigned</field>
+            <field name="message">MacBook Pro (AF-0114) has been assigned to you.</field>
+            <field name="notif_type">assigned</field>
+            <field name="module">allocation</field>
+            <field name="user_id" ref="base.user_admin"/>
+            <field name="priority">medium</field>
+            <field name="status">sent</field>
+            <field name="is_read" eval="False"/>
+        </record>
+        <record id="seed_notif_2" model="assetflow.notification">
+            <field name="title">Overdue Return Alert</field>
+            <field name="message">Laptop AF-0089 expected return date was 2 days ago.</field>
+            <field name="notif_type">overdue</field>
+            <field name="module">allocation</field>
+            <field name="user_id" ref="base.user_admin"/>
+            <field name="priority">critical</field>
+            <field name="status">sent</field>
+            <field name="is_read" eval="False"/>
+        </record>
+        <record id="seed_notif_3" model="assetflow.notification">
+            <field name="title">Booking Confirmed</field>
+            <field name="message">Your booking for Room B2 is confirmed for 2:00 PM.</field>
+            <field name="notif_type">book_conf</field>
+            <field name="module">booking</field>
+            <field name="user_id" ref="base.user_admin"/>
+            <field name="priority">low</field>
+            <field name="status">sent</field>
+            <field name="is_read" eval="True"/>
+        </record>
+        <record id="seed_notif_4" model="assetflow.notification">
+            <field name="title">Maintenance Approved</field>
+            <field name="message">Maintenance request for Projector AF-0056 has been approved.</field>
+            <field name="notif_type">maint_appr</field>
+            <field name="module">maintenance</field>
+            <field name="user_id" ref="base.user_admin"/>
+            <field name="priority">high</field>
+            <field name="status">sent</field>
+            <field name="is_read" eval="True"/>
+        </record>
+    </data>
+</odoo>
