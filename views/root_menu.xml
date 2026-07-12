@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- AssetFlow Main Parent Menu Root -->
+    <menuitem 
+        id="menu_assetflow_root" 
+        name="AssetFlow" 
+        web_icon="assetflow,static/description/icon.png"
+        sequence="10"
+    />
+</odoo>

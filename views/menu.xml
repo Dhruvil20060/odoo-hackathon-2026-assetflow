@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Submenu Item Hierarchy -->
+
+    <!-- 1. Dashboard -->
+    <menuitem 
+        id="menu_assetflow_dashboard" 
+        name="Dashboard" 
+        parent="menu_assetflow_root" 
+        action="action_assetflow_dashboard" 
+        sequence="10"
+    />
+
+    <!-- 2. Organization Setup (Admin access rules can be applied at menu level too) -->
+    <menuitem 
+        id="menu_assetflow_org_setup" 
+        name="Organization Setup" 
+        parent="menu_assetflow_root" 
+        groups="assetflow.group_admin"
+        sequence="20"
+    />
+    
+    <menuitem 
+        id="menu_assetflow_org_departments" 
+        name="Departments" 
+        parent="menu_assetflow_org_setup" 
+        action="action_assetflow_department" 
+        sequence="10"
+    />
+
+    <menuitem 
+        id="menu_assetflow_org_categories" 
+        name="Asset Categories" 
+        parent="menu_assetflow_org_setup" 
+        action="action_assetflow_category" 
+        sequence="20"
+    />
+
+    <menuitem 
+        id="menu_assetflow_org_employees" 
+        name="Employee Directory" 
+        parent="menu_assetflow_org_setup" 
+        action="action_assetflow_employee" 
+        sequence="30"
+    />
+
+    <!-- 3. Assets -->
+    <menuitem 
+        id="menu_assetflow_assets" 
+        name="Assets" 
+        parent="menu_assetflow_root" 
+        action="action_assetflow_assets" 
+        sequence="30"
+    />
+
+    <!-- 4. Allocation & Transfer -->
+    <menuitem 
+        id="menu_assetflow_allocation" 
+        name="Allocation &amp; Transfer" 
+        parent="menu_assetflow_root" 
+        action="action_assetflow_allocation" 
+        sequence="40"
+    />
+
+    <!-- 5. Resource Booking -->
+    <menuitem 
+        id="menu_assetflow_booking" 
+        name="Resource Booking" 
+        parent="menu_assetflow_root" 
+        action="action_assetflow_booking" 
+        sequence="50"
+    />
+
+    <!-- 6. Maintenance -->
+    <menuitem 
+        id="menu_assetflow_maintenance" 
+        name="Maintenance" 
+        parent="menu_assetflow_root" 
+        action="action_assetflow_maintenance" 
+        sequence="60"
+    />
+
+    <!-- 7. Audit -->
+    <menuitem 
+        id="menu_assetflow_audit" 
+        name="Audit" 
+        parent="menu_assetflow_root" 
+        action="action_assetflow_audit" 
+        sequence="70"
+    />
+
+    <!-- 8. Reports -->
+    <menuitem 
+        id="menu_assetflow_reports" 
+        name="Reports" 
+        parent="menu_assetflow_root" 
+        action="action_assetflow_reports" 
+        groups="assetflow.group_admin,assetflow.group_asset_manager"
+        sequence="80"
+    />
+
+    <!-- 9. Notifications -->
+    <menuitem 
+        id="menu_assetflow_notifications" 
+        name="Notifications" 
+        parent="menu_assetflow_root" 
+        action="action_assetflow_notifications" 
+        sequence="90"
+    />
+</odoo>
