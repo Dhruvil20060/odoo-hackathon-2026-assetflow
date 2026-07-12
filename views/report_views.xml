@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Department Summary Tree View -->
+    <record id="view_report_department_tree" model="ir.ui.view">
+        <field name="name">assetflow.report.department.tree</field>
+        <field name="model">assetflow.department</field>
+        <field name="arch" type="xml">
+            <tree string="Department Summary" create="false" edit="false" delete="false">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="parent_id" string="Parent Department"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Asset Report List Tree View -->
+    <record id="view_report_asset_tree" model="ir.ui.view">
+        <field name="name">assetflow.report.asset.tree</field>
+        <field name="model">assetflow.asset</field>
+        <field name="arch" type="xml">
+            <tree string="Asset Inventory Report" create="false" edit="false" delete="false">
+                <field name="asset_tag"/>
+                <field name="name"/>
+                <field name="category_id"/>
+                <field name="department_id"/>
+                <field name="location"/>
+                <field name="status" widget="badge" decoration-success="status == 'available'" decoration-info="status == 'allocated'" decoration-warning="status == 'maintenance'" decoration-danger="status == 'lost'"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Asset Report Pivot View -->
+    <record id="view_report_asset_pivot" model="ir.ui.view">
+        <field name="name">assetflow.report.asset.pivot</field>
+        <field name="model">assetflow.asset</field>
+        <field name="arch" type="xml">
+            <pivot string="Asset Aggregation Summary" disable_linking="1">
+                <field name="category_id" type="row"/>
+                <field name="department_id" type="row"/>
+                <field name="status" type="col"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Asset Report Search View -->
+    <record id="view_report_asset_filter" model="ir.ui.view">
+        <field name="name">assetflow.report.asset.select</field>
+        <field name="model">assetflow.asset</field>
+        <field name="arch" type="xml">
+            <search string="Search Asset Inventory">
+                <field name="name" string="Asset Tag or Name" filter_domain="['|', ('name', 'ilike', self), ('asset_tag', 'ilike', self)]"/>
+                <field name="department_id" string="Department"/>
+                <field name="category_id" string="Category"/>
+                <separator/>
+                <filter string="Available" name="status_avail" domain="[('status', '=', 'available')]"/>
+                <filter string="Allocated" name="status_alloc" domain="[('status', '=', 'allocated')]"/>
+                <filter string="Under Maintenance" name="status_maint" domain="[('status', '=', 'maintenance')]"/>
+                <filter string="Lost" name="status_lost" domain="[('status', '=', 'lost')]"/>
+                <filter string="Retired" name="status_retired" domain="[('status', '=', 'retired')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Department" name="group_dept" context="{'group_by': 'department_id'}"/>
+                    <filter string="Category" name="group_category" context="{'group_by': 'category_id'}"/>
+                    <filter string="Status" name="group_status" context="{'group_by': 'status'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Department Summary Action Window -->
+    <record id="action_report_departments" model="ir.actions.act_window">
+        <field name="name">Department Summary</field>
+        <field name="res_model">assetflow.department</field>
+        <field name="view_mode">tree</field>
+        <field name="view_id" ref="view_report_department_tree"/>
+        <field name="help" type="html">
+            <p>
+                Department tracking logs.
+            </p>
+        </field>
+    </record>
+
+    <!-- Asset Inventory Action Window -->
+    <record id="action_report_assets" model="ir.actions.act_window">
+        <field name="name">Asset Inventory Report</field>
+        <field name="res_model">assetflow.asset</field>
+        <field name="view_mode">tree,pivot</field>
+        <field name="search_view_id" ref="view_report_asset_filter"/>
+        <field name="help" type="html">
+            <p>
+                Asset inventory status list and pivot reports.
+            </p>
+        </field>
+    </record>
+
+    <!-- Register Submenus under Reports Menu Option -->
+    <menuitem 
+        id="menu_sub_report_departments" 
+        name="Department Summary" 
+        parent="menu_assetflow_reports" 
+        action="action_report_departments" 
+        sequence="10"
+    />
+
+    <menuitem 
+        id="menu_sub_report_assets" 
+        name="Asset Reports" 
+        parent="menu_assetflow_reports" 
+        action="action_report_assets" 
+        sequence="20"
+    />
+</odoo>
